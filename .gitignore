@@ -1,0 +1,11 @@
+.idea
+
+.DS_Store
+.AppleDouble
+.LSOverride
+
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+*.lnk
