@@ -11,7 +11,7 @@ Any of the DNS provders from https://github.com/Neilpang/acme.sh will work with 
 
 ### Usage
 
-1. C1one this repo to a location of your choosing on the machine where the controller is running
+1. Clone this repo to a location of your choosing on the machine where the controller is running
 1. Update `ACMEHOME` in renew.acme.sh
 1. Change `SETPASSWORD` in gen-unifi.sh
 1. Run `chmod +x *.sh`
