@@ -21,7 +21,7 @@ Any of the DNS provders from https://github.com/Neilpang/acme.sh will work with 
 ./renew.acme.sh -d <UNIFI_DOMAIN_NAME> -n dns_he -t "HE_Username" -t "HE_Password" -k "<USERNAME>" -k "<PASSWORD>"
 ```
 
-If you are not using Hurricane Electric please visit https://github.com/Neilpang/acme.sh and download the appropriate provider and adjust the instruction for that provider.
+If you are not using Hurricane Electric please visit https://github.com/Neilpang/acme.sh and download the appropriate provider and adjust the command for that provider.
 
 Finally set up a cron job to run this once a month to keep your certs updated.
 
