@@ -5,14 +5,25 @@
 # Version: 1.5
 # Last Changed: 02/04/2018
 
-PASSWORD=SETPASSWORD
+#!/usr/bin/env bash
+# Modified script from here: https://github.com/FarsetLabs/letsencrypt-helper-scripts/blob/master/letsencrypt-unifi.sh
+# Modified by: Brielle Bruns <bruns@2mbit.com>
+# Download URL: https://source.sosdg.org/brielle/lets-encrypt-scripts
+# Version: 1.5
+# Last Changed: 02/04/2018
+# 02/02/2016: Fixed some errors with key export/import, removed lame docker requirements
+# 02/27/2016: More verbose progress report
+# 03/08/2016: Add renew option, reformat code, command line options
+# 03/24/2016: More sanity checking, embedding cert
+# 10/23/2017: Apparently don't need the ace.jar parts, so disable them
+# 02/04/2018: LE disabled tls-sni-01, so switch to just tls-sni, as certbot 0.22 and later automatically fall back to http/80 for auth
 
 if [[ -z ${MAINDOMAIN} ]]; then
 	echo "Error: At least one -d argument is required"
 	exit 1
 fi
 
-if `md5sum -c $ACMEHOME/${MAINDOMAIN}/${MAINDOMAIN}.cer.md5 &>/dev/null`; then
+if `md5sum -c /opt/unifi/${MAINDOMAIN}/${MAINDOMAIN}.cer.md5 &>/dev/null`; then
 	echo "Cert has not changed, not updating controller."
 	exit 0
 else
@@ -45,29 +56,32 @@ Ob8VZRzI9neWagqNdwvYkQsEjgfbKbYK7p2CNTUQ
 _EOF
 
 	echo "Cert has changed, updating controller..."
-	md5sum $ACMEHOME/${MAINDOMAIN}/${MAINDOMAIN}.cer > $ACMEHOME/${MAINDOMAIN}/cert.pem.md5
+	md5sum /opt/unifi/${MAINDOMAIN}/${MAINDOMAIN}.cer > /opt/unifi/${MAINDOMAIN}/${MAINDOMAIN}.pem.md5
 	echo "Using openssl to prepare certificate..."
-	cat $ACMEHOME/${MAINDOMAIN}/fullchain.cer >> "${CATEMPFILE}"
-	openssl pkcs12 -export  -passout pass:$PASSWORD \
-    	-in $ACMEHOME/${MAINDOMAIN}/${MAINDOMAIN}.cer \
-    	-inkey $ACMEHOME/${MAINDOMAIN}/${MAINDOMAIN}.key \
+	cat /opt/unifi/${MAINDOMAIN}/fullchain.cer >> "${CATEMPFILE}"
+	openssl pkcs12 -export  -passout pass:aircontrolenterprise \
+    	-in /opt/unifi/${MAINDOMAIN}/${MAINDOMAIN}.cer \
+    	-inkey /opt/unifi/${MAINDOMAIN}/${MAINDOMAIN}.key \
     	-out "${TEMPFILE}" -name unifi \
     	-CAfile "${CATEMPFILE}" -caname root
 	echo "Stopping Unifi controller..."
 	service unifi stop
 	echo "Removing existing certificate from Unifi protected keystore..."
 	keytool -delete -alias unifi -keystore /usr/lib/unifi/data/keystore \
-		-deststorepass $PASSWORD
+		-deststorepass aircontrolenterprise
 	echo "Inserting certificate into Unifi keystore..."
 	keytool -trustcacerts -importkeystore \
-		-deststorepass $PASSWORD \
-		-destkeypass $PASSWORD \
-    	-destkeystore /usr/lib/unifi/data/keystore \
+		-deststorepass aircontrolenterprise \
+		-destkeypass aircontrolenterprise \
+    	-destkeystore /usr/lib/unifi/data/keystore.tmp \
     	-deststoretype PKCS12 \
     	-srckeystore "${TEMPFILE}" -srcstoretype PKCS12 \
-    	-srcstorepass $PASSWORD \
+    	-srcstorepass aircontrolenterprise \
     	-alias unifi
 	rm -f "${TEMPFILE}" "${CATEMPFILE}"
+	rm -f /usr/lib/unifi/data/keystore
+	mv /usr/lib/unifi/data/keystore.tmp /usr/lib/unifi/data/keystore
+	rm /usr/lib/unifi/data/keystore.tmp
 	echo "Starting Unifi controller..."
 	service unifi start
 	echo "Done!"

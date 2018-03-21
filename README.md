@@ -13,7 +13,6 @@ Any of the DNS provders from https://github.com/Neilpang/acme.sh will work with 
 
 1. Clone this repo to a location of your choosing on the machine where the controller is running
 1. Update `ACMEHOME` in renew.acme.sh
-1. Change `SETPASSWORD` in gen-unifi.sh
 1. Run `chmod +x *.sh`
 1. If you are using Hurricane Electric's DNS execute the following
 
